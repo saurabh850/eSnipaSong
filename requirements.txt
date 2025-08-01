@@ -1,4 +1,6 @@
 discord.py
-yt-dlp
-spotipy
+Flask
 python-dotenv
+spotipy
+yt-dlp
+ffmpeg-python
