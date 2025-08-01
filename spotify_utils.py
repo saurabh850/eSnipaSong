@@ -1,9 +1,15 @@
 import os
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
+import os
 
-load_dotenv()
+# Check if any env var has a null byte
+for key, val in os.environ.items():
+    if '\x00' in val:
+        print(f"🚨 ENV var {key} contains a null byte!")
+
+# load_dotenv()
 
 sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(
     client_id=os.getenv("SPOTIFY_CLIENT_ID"),
