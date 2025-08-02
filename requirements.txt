@@ -4,3 +4,4 @@ python-dotenv
 spotipy
 yt-dlp
 ffmpeg-python
+PyNaCl
