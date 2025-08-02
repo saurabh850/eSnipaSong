@@ -26,6 +26,8 @@ def download_song(query):
         'quiet': False,  # Set to False for debugging
         'no_warnings': False,
         'outtmpl': base_filepath + '.%(ext)s',  # Let yt-dlp handle extension
+        'cookies': 'cookies.txt',  # <-- Use your cookies file here
+        'noplaylist': True,
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
