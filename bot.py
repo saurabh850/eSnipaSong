@@ -126,36 +126,40 @@ async def play_next_song(interaction):
         await play_next_song(interaction)  # Try next song
 
 
-@tree.command(name="play", description="Play a song from YouTube or Spotify")
-@app_commands.describe(query="Name of the song or Spotify track")
-async def play(interaction: discord.Interaction, query: str):
-    global current_voice_client, is_playing
+@tree.command(name="play", description="Play a song from Spotify or YouTube")
+@app_commands.describe(song="The song name or link")
+async def play(interaction: discord.Interaction, song: str):
+    await interaction.response.defer()  # ✅ Defer to prevent timeout
 
-    await interaction.response.defer()
-    user = interaction.user
+    file_path = download_song(song)
 
-    if not user.voice or not user.voice.channel:
-        await interaction.followup.send("❌ Join a voice channel first.")
-        return
+    if file_path:
+        await interaction.followup.send(f"✅ Downloaded `{song}`. Adding to queue and playing...")
+        # Add to queue and play logic
+        global current_voice_client, is_playing
+        user = interaction.user
 
-    # Connect to voice channel if not connected
-    if not current_voice_client or not current_voice_client.is_connected():
-        try:
-            current_voice_client = await user.voice.channel.connect()
-            print(f"✅ Connected to {user.voice.channel.name}")
-        except Exception as e:
-            await interaction.followup.send(f"❌ Failed to connect to voice channel: {e}")
+        if not user.voice or not user.voice.channel:
+            await interaction.followup.send("❌ Join a voice channel first.")
             return
 
-    # Add to queue
-    await song_queue.put(query)
-    queue_size = song_queue.qsize()
-    
-    if queue_size == 1 and not is_playing:
-        await interaction.followup.send(f"🎵 Playing: **{query}**")
-        await play_next_song(interaction)
+        # Connect to voice channel if not connected
+        if not current_voice_client or not current_voice_client.is_connected():
+            try:
+                current_voice_client = await user.voice.channel.connect()
+                print(f"✅ Connected to {user.voice.channel.name}")
+            except Exception as e:
+                await interaction.followup.send(f"❌ Failed to connect to voice channel: {e}")
+                return
+
+        # Add to queue
+        await song_queue.put(song)
+        queue_size = song_queue.qsize()
+
+        if queue_size == 1 and not is_playing:
+            await play_next_song(interaction)
     else:
-        await interaction.followup.send(f"🎵 Queued: **{query}** (Position: {queue_size})")
+        await interaction.followup.send(f"❌ Could not download `{song}`")
 
 
 @tree.command(name="playlist", description="Queue all songs in a Spotify playlist")
